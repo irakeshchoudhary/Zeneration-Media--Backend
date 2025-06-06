@@ -13,10 +13,32 @@ dotenv.config();
 
 const app = express();
 
+// Production origins (Vercel frontend URLs)
+const prodOrigins = [
+    process.env.ORIGIN_1, // e.g. https://zenerationmedia.vercel.app
+    process.env.ORIGIN_2  // koi dusra allowed origin ho toh
+];
+
+// Development origin
+const devOrigin = ['http://localhost:5173'];
+
+// Allowed origins based on environment
+const allowedOrigins = process.env.NODE_ENV === 'production' ? prodOrigins : devOrigin;
+
 // Middleware
 app.use(cors({
-    origin: ['https://zenerationmedia.vercel.app', 'http://localhost:5173'],
-    credentials: true
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            console.log('CORS allowed:', origin);
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 app.use(express.json());
 
@@ -24,9 +46,9 @@ app.use(express.json());
 ConnectDB();
 
 // Routes
-app.use('/api', subscribeRoute);
-app.use('/api', leadsRoute);
-app.use('/api/call-request', callRequestRoute);
+app.use('/', subscribeRoute);
+app.use('/', leadsRoute);
+app.use('/call-request', callRequestRoute);
 app.get('/', (req, res) => {
     res.send('API is running');
 });
