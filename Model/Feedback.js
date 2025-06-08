@@ -17,6 +17,26 @@ const feedbackSchema = new mongoose.Schema({
         trim: true,
         default: '',
     },
+    userEmail: {
+        type: String,
+        trim: true,
+        default: 'unknown',
+    },
+    userName: {
+        type: String,
+        trim: true,
+        default: 'Unknown',
+    },
+    userPhone: {
+        type: String,
+        trim: true,
+        default: 'Unknown',
+    },
+    userBusiness: {
+        type: String,
+        trim: true,
+        default: 'Unknown',
+    },
     createdAt: {
         type: Date,
         default: Date.now,
