@@ -5,6 +5,7 @@ import { ConnectDB } from './Config/db.js';
 import subscribeRoute from './Routes/subscribeRoute.js';
 import leadsRoute from './Routes/leadsRoute.js';
 import callRequestRoute from './Routes/callRequestRoute.js';
+import feedbackRoutes from './Routes/feedbackRoutes.js';
 // Import sitemap library
 import { SitemapStream, streamToPromise } from 'sitemap';
 
@@ -16,7 +17,8 @@ const app = express();
 // Production origins (Vercel frontend URLs)
 const prodOrigins = [
     process.env.ORIGIN_1, // e.g. https://zenerationmedia.vercel.app
-    process.env.ORIGIN_2  // koi dusra allowed origin ho toh
+    process.env.ORIGIN_2,  // koi dusra allowed origin ho toh
+    'http://localhost:5173' // TEMPORARY: Added for local frontend testing against Render backend
 ];
 
 // Development origin
@@ -49,6 +51,7 @@ ConnectDB();
 app.use('/', subscribeRoute);
 app.use('/', leadsRoute);
 app.use('/call-request', callRequestRoute);
+app.use('/api/feedback', feedbackRoutes);
 app.get('/', (req, res) => {
     res.send('API is running');
 });
