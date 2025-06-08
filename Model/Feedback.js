@@ -1,25 +1,11 @@
 import mongoose from 'mongoose';
 
 const feedbackSchema = new mongoose.Schema({
-    category: {
-        type: String,
-        required: true,
-        enum: ['Website', 'Services', 'Social Media', 'Others'],
-    },
-    emojiRating: {
-        type: Number,
-        required: true,
-        min: 1,
-        max: 5,
-    },
-    feedbackText: {
-        type: String,
-        trim: true,
-        default: '',
-    },
     userEmail: {
         type: String,
         trim: true,
+        required: true,
+        unique: true,
         default: 'unknown',
     },
     userName: {
@@ -37,11 +23,35 @@ const feedbackSchema = new mongoose.Schema({
         trim: true,
         default: 'Unknown',
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
+    feedbackCount: {
+        type: Number,
+        default: 0,
     },
-});
+    feedbackHistory: [
+        {
+            category: {
+                type: String,
+                required: true,
+                enum: ['Website', 'Services', 'Social Media', 'Others'],
+            },
+            emojiRating: {
+                type: Number,
+                required: true,
+                min: 1,
+                max: 5,
+            },
+            feedbackText: {
+                type: String,
+                trim: true,
+                default: '',
+            },
+            submittedAt: {
+                type: Date,
+                default: Date.now,
+            },
+        },
+    ],
+}, { timestamps: true });
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
 
