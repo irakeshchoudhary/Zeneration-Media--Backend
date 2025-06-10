@@ -1,4 +1,5 @@
 import CallRequest from '../Model/CallRequests.js';
+import { appendCallRequestData } from '../Services/googleSheetService.js';
 
 // Helper to check if 5 minutes have passed
 const FIVE_MINUTES = 5 * 60 * 1000;
@@ -33,6 +34,15 @@ export const createCallRequest = async (req, res) => {
         // Create new call request
         const newRequest = new CallRequest({ name: name.trim(), number: number.trim() });
         await newRequest.save();
+
+        // Append to Google Sheet
+        try {
+            await appendCallRequestData({ name: name.trim(), number: number.trim() });
+        } catch (sheetError) {
+            console.error('Error syncing to Google Sheet:', sheetError);
+            // Continue with success response even if sheet sync fails
+        }
+
         return res.status(201).json({ message: 'Call request submitted successfully.' });
     } catch (err) {
         return res.status(500).json({ error: 'Server error. Please try again later.' });

@@ -1,5 +1,6 @@
 import Feedback from '../Model/Feedback.js';
 import Lead from '../Model/Leadschema.js';
+import { appendFeedbackData } from '../Services/googleSheetService.js';
 
 export const submitFeedback = async (req, res) => {
     try {
@@ -45,6 +46,22 @@ export const submitFeedback = async (req, res) => {
             if (feedbackDoc.userBusiness === 'Unknown' && userBusiness !== 'Unknown') feedbackDoc.userBusiness = userBusiness;
 
             await feedbackDoc.save();
+
+            // Append to Google Sheet
+            try {
+                await appendFeedbackData({
+                    userName: feedbackDoc.userName,
+                    userEmail: feedbackDoc.userEmail,
+                    userPhone: feedbackDoc.userPhone,
+                    userBusiness: feedbackDoc.userBusiness,
+                    category,
+                    emojiRating
+                });
+            } catch (sheetError) {
+                console.error('Error syncing to Google Sheet:', sheetError);
+                // Continue with success response even if sheet sync fails
+            }
+
             res.status(200).json({ message: 'Feedback updated successfully!', feedback: feedbackDoc });
         } else {
             // If no document exists, create a new one
@@ -58,6 +75,22 @@ export const submitFeedback = async (req, res) => {
             });
 
             await newFeedback.save();
+
+            // Append to Google Sheet
+            try {
+                await appendFeedbackData({
+                    userName,
+                    userEmail: userEmail || 'unknown',
+                    userPhone,
+                    userBusiness,
+                    category,
+                    emojiRating
+                });
+            } catch (sheetError) {
+                console.error('Error syncing to Google Sheet:', sheetError);
+                // Continue with success response even if sheet sync fails
+            }
+
             res.status(201).json({ message: 'Feedback submitted successfully!', feedback: newFeedback });
         }
     } catch (error) {
